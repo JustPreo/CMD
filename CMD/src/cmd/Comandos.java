@@ -36,14 +36,14 @@ public class Comandos {
     
     private void showHelp() {
         println("Comandos disponibles:\n");
+        println("| MKDIR <nombre>       Nueva carpeta");
+        println("| MFILE <nombre.ext>   Nuevo archivo");
+        println("| RM <nombre>          Eliminar archivo o carpeta");
+        println("| CD <carpeta>         Cambiar de carpeta");
+        println("| <...>                Regresar a la carpeta anterior");
         println("| DIR                  Listar carpetas y archivos");
         println("| DATE                 Mostrar fecha actual");
         println("| TIME                 Mostrar hora actual");
-        println("| MKDIR <nombre>       Nueva carpeta");
-        println("| MFILE <nombre.ext>   Nuevo archivo");
-        println("| RM <nombre>          Eliminar archivo o carpeta (recursivo)");
-        println("| CD <carpeta>         Cambiar de carpeta");
-        println("| <...>                Regresar a la carpeta anterior");
         println("| WR <archivo>         Escribir texto al archivo (sobrescribe)");
         println("| RD <archivo>         Leer contenido del archivo");
         println("| EXIT                 Salir\n");
@@ -154,7 +154,8 @@ public class Comandos {
                     System.exit(0);
                     break;
                 default:
-                    println("| El comando '" + args[0] + "' no existe!\n");
+                    println("| El comando '" + args[0] + "' no existe.");
+                    println("| Utiliza 'help' o '?' para ver los comandos disponibles!\n");
             }
         } catch (Exception ex) {
             println("| Error: " + ex.getMessage() + "\n");
