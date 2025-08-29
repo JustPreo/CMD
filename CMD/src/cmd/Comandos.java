@@ -318,7 +318,6 @@ public class Comandos {
 
         JScrollPane sp = new JScrollPane(area);
 
-        // Cargar contenido existente
         String textoExistente = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         area.setText(textoExistente);
         area.setCaretPosition(area.getDocument().getLength());
