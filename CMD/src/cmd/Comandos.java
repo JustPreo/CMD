@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package cmd;
 
 import javax.swing.*;
@@ -20,10 +16,13 @@ public class Comandos {
     private File currentDir = null;
     boolean modoEscritura = false;
 
-    public Comandos(JTextArea console, File rootDir) {
+    private final Impresiones impresiones;
+
+    public Comandos(JTextArea console, File rootDir, Impresiones impresiones) {
         this.console = console;
         this.rootDir = rootDir;
         this.currentDir = rootDir;
+        this.impresiones = impresiones;
     }
 
     private void println(String text) {//Para ponerlo en la consola de ferchooooo
@@ -31,7 +30,7 @@ public class Comandos {
     }
 
     private void printPrompt() {
-        console.append(currentDir.getAbsolutePath() + "> ");
+        impresiones.imprimirPrompt();
     }
 
     private String[] dividirArgs(String linea) {
@@ -63,7 +62,7 @@ public class Comandos {
     }
 
     public void hacerComando(String linea) {
-        println(linea);
+        println("\n");
         if (modoEscritura) {
             if (linea.equals(":wq")) {
                 try {
@@ -256,6 +255,7 @@ public class Comandos {
             return;
         }
         currentDir = currentDir.getCanonicalFile().getParentFile();
+        impresiones.setActualDir(currentDir);
     }
 
     private void cD(String[] args) throws IOException {
@@ -273,6 +273,7 @@ public class Comandos {
             return;
         }
         currentDir = dir;
+        impresiones.setActualDir(currentDir);
 
     }
 
@@ -292,7 +293,6 @@ public class Comandos {
         println("Escriba el contenido. Escriba ':wq' en una linea nueva para guardar y salir.");
         modoEscritura = true;
         currentDir = file;
-        //Como en git 
     }
 
     private void Rd(String[] args) throws IOException {
@@ -311,7 +311,7 @@ public class Comandos {
         println("");
         println("=== " + file.getName() + " ===");
         println((texto.isEmpty() ? "(Vacio)" : texto));
-        println("=== fin ===");
+        println("====== FIN ======");
     }
 
 }

@@ -29,7 +29,8 @@ public class Main extends JFrame {
         
         apuntarDir();
         Impresiones impresiones = new Impresiones(consola, rootDir);
-        impresiones.setActualDir(actualDir); 
+        impresiones.setActualDir(actualDir);
+        Comandos cmd = new Comandos(consola, rootDir, impresiones);
 
         consola.addKeyListener(new KeyAdapter() {
 
@@ -39,7 +40,7 @@ public class Main extends JFrame {
                     e.consume();
                     String line = impresiones.leerActual();
                     if (line != null) {
-                        // aqui se ejecuta el comando, apurate aaron >:c
+                        cmd.hacerComando(line.trim());
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.getKeyCode() == KeyEvent.VK_LEFT) {
                     int ingreso = consola.getCaretPosition();
