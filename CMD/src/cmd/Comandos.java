@@ -1,5 +1,6 @@
 package cmd;
 
+import java.awt.Color;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -68,9 +69,9 @@ public class Comandos {
                 try {
                     Files.write(currentDir.toPath(),
                             console.getText().getBytes(StandardCharsets.UTF_8));
-                    println("Archivo guardado: " + currentDir.getName());
+                    println("| Archivo guardado: " + currentDir.getName() + "\n");
                 } catch (IOException e) {
-                    println("Error al guardar: " + e.getMessage());
+                    println("| Error al guardar: " + e.getMessage() + "\n");
                 }
                 modoEscritura = false;
                 printPrompt();
@@ -137,10 +138,10 @@ public class Comandos {
                     System.exit(0);
                     break;
                 default:
-                    println("'" + args[0] + "' no existe tal comando");
+                    println("| El comando '" + args[0] + "' no existe!\n");
             }
         } catch (Exception ex) {
-            println("Error: " + ex.getMessage());
+            println("| Error: " + ex.getMessage() + "\n");
         }
 
         printPrompt();
@@ -150,16 +151,16 @@ public class Comandos {
     {
         File[] lista = currentDir.listFiles();
         if (lista == null) {
-            println("Directorio vacio");
+            println("| Directorio vacio!\n");
             return;
         }
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        println(" Directorio de " + currentDir.getAbsolutePath());
+        println("Directorio de " + currentDir.getAbsolutePath());
         println(" ");
         for (File f : lista) {
             String fecha = df.format(new Date(f.lastModified()));
-            String tipo = (f.isDirectory() ? "<DIR>" : "    ");
+            String tipo = (f.isDirectory() ? "<DIR>" : "FILE");
             println(String.format(Locale.ROOT, "%s %5s %s", fecha, tipo, f.getName()));
         }
         println("");
@@ -167,52 +168,52 @@ public class Comandos {
 
     private void date() {
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-        println(f.format(new Date()));
+        println("| Fecha: " + f.format(new Date()) + "\n");
     }
 
     private void time() {
         SimpleDateFormat f = new SimpleDateFormat("HH:mm");
-        println(f.format(new Date()));
+        println("| Hora Actual: " + f.format(new Date()) + "\n");
     }
 
     private void mkdir(String[] args) throws IOException {
         if (args.length > 2) {
-            println("Debe usar: mkdir <nombre>");
+            println("| Debe usar: mkdir <nombre>\n");
             return;
         }
         File archivo = new File(currentDir, args[1]);
 
         if (archivo.exists()) {
-            println("Ya existe la carpeta");
+            println("| Ya existe la carpeta!\n");
             return;
         }
 
-        if (archivo.mkdirs())//Revisa si se crea o no
+        if (archivo.mkdirs())
         {
-            println("Carpeta creada: " + archivo.getName());
+            println("| Carpeta creada: " + archivo.getName() + "\n");
         } else {
-            println("No se pudo crear la carpeta");
+            println("| No se pudo crear la carpeta! \n");
         }
 
     }
 
     private void fileCrear(String[] args) throws IOException {
         if (args.length > 2) {
-            println("Debe usar: mfile <nombre.txt>");
+            println("| Debe usar: mfile <nombre.txt>\n");
             return;
         }
 
         File archivo = new File(currentDir, args[1]);
         if (archivo.exists())//Revisar si existe
         {
-            println("archivo ya existe");
+            println("| Ese archivo ya existe! \n");
             return;
         }
 
         if (archivo.createNewFile()) {
-            println("Archivo creado: " + archivo.getName());
+            println("| Archivo creado: " + archivo.getName() + "\n");
         } else {
-            println("No se pudo crear el archivo");
+            println("| No se pudo crear el archivo!\n");
         }
     }
 
@@ -232,18 +233,18 @@ public class Comandos {
 
     private void Rm(String[] args) throws IOException {
         if (args.length < 2) {
-            println("Debe usar: rm <nombre>");
+            println("| Debe usar: rm <nombre>\n");
             return;
         }
 
         File archivo = new File(currentDir, args[1]);
         if (!archivo.exists()) {
-            println("No existe: " + archivo.getName());
+            println("| No existe: " + archivo.getName() + "\n");
         }
         if (RmR(archivo)) {
-            println("Se elimino:" + archivo.getName());
+            println("| Se elimino: " + archivo.getName() + "\n");
         } else {
-            println("No se pudo eliminar");
+            println("| No se pudo eliminar!\n");
         }
 
     }
@@ -251,7 +252,7 @@ public class Comandos {
     private void volver() throws IOException {
 
         if (currentDir.equals(rootDir)) {
-            println("Ya esta en la raiz");
+            println("| Ya esta en la raiz!\n");
             return;
         }
         currentDir = currentDir.getCanonicalFile().getParentFile();
@@ -260,16 +261,16 @@ public class Comandos {
 
     private void cD(String[] args) throws IOException {
         if (args.length < 2) {
-            println("Debe usar: cd <carpeta>");
+            println("| Debe usar: cd <carpeta>\n");
             return;
         }
         if ("..".equals(args[1])) {
-            volver();//Por si escribe ..
+            volver();
             return;
         }
         File dir = new File(currentDir, args[1]);
         if (!dir.exists() || !dir.isDirectory()) {
-            println("Ruta invalida");
+            println("| Ruta invalida!\n");
             return;
         }
         currentDir = dir;
@@ -278,56 +279,65 @@ public class Comandos {
     }
 
     private void Wr(String[] args) throws IOException {
-    if (args.length < 2) {
-        println("Uso: wr <archivo>");
-        return;
+        if (args.length < 2) {
+            println("| Uso: wr <archivo>\n");
+            return;
+        }
+
+        File file = new File(currentDir, args[1]);
+        if (!file.exists() || !file.isFile()) {
+            println("| El archivo no existe!\n");
+            return;
+        }
+
+        JTextArea area = new JTextArea(20, 60);
+        area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 14));
+        area.setBackground(Color.BLACK);
+        area.setForeground(Color.WHITE);
+        area.setCaretColor(Color.GREEN);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setEditable(true);
+
+        JScrollPane sp = new JScrollPane(area);
+
+        // Cargar contenido existente
+        String textoExistente = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        area.setText(textoExistente);
+        area.setCaretPosition(area.getDocument().getLength());
+
+        int result = JOptionPane.showConfirmDialog(
+                null,
+                sp,
+                "[CONSOLA EXTERNA] Editando " + file.getName(),
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            Files.write(file.toPath(), area.getText().getBytes(StandardCharsets.UTF_8));
+            println("| Archivo guardado: " + file.getName() + "\n");
+        } else {
+            println("| Edición cancelada!\n");
+        }
     }
-
-    File file = new File(currentDir, args[1]);
-    if (!file.exists() || !file.isFile()) {
-        println("El archivo no existe.");
-        return;
-    }
-    JTextArea area = new JTextArea(15, 50);
-    area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 14));
-    JScrollPane sp = new JScrollPane(area);
-    String textoExistente = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-    area.setText(textoExistente);
-
-    int result = JOptionPane.showConfirmDialog(
-            null,
-            sp,
-            "Escribir en " + file.getName(),
-            JOptionPane.OK_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE
-    );
-
-    if (result == JOptionPane.OK_OPTION) {
-        Files.write(file.toPath(), area.getText().getBytes(StandardCharsets.UTF_8));
-        println("Archivo guardado: " + file.getName());
-    } else {
-        println("Edicion cancelada");
-    }
-}
-
 
     private void Rd(String[] args) throws IOException {
         if (args.length < 2) {
-            println("Uso: Rd <archivo>");
+            println("| Uso: Rd <archivo>\n");
             return;
         }
 
         File file = new File(currentDir, args[1]);
 
         if (!file.exists() || !file.isFile()) {
-            println("Archivo no existe");
+            println("| Archivo no existe \n");
             return;
         }
         String texto = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-        println("");
         println("=== " + file.getName() + " ===");
-        println((texto.isEmpty() ? "(Vacio)" : texto));
-        println("====== FIN ======");
+        println((texto.isEmpty() ? "[ARCHIVO VACIO]" : texto));
+        println("====== FIN =======\n");
     }
 
 }
