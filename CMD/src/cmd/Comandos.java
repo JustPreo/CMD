@@ -33,6 +33,21 @@ public class Comandos {
     private void printPrompt() {
         impresiones.imprimirPrompt();
     }
+    
+    private void showHelp() {
+        println("Comandos disponibles:\n");
+        println("| DIR                  Listar carpetas y archivos");
+        println("| DATE                 Mostrar fecha actual");
+        println("| TIME                 Mostrar hora actual");
+        println("| MKDIR <nombre>       Nueva carpeta");
+        println("| MFILE <nombre.ext>   Nuevo archivo");
+        println("| RM <nombre>          Eliminar archivo o carpeta (recursivo)");
+        println("| CD <carpeta>         Cambiar de carpeta");
+        println("| <...>                Regresar a la carpeta anterior");
+        println("| WR <archivo>         Escribir texto al archivo (sobrescribe)");
+        println("| RD <archivo>         Leer contenido del archivo");
+        println("| EXIT                 Salir\n");
+    }
 
     private String[] dividirArgs(String linea) {
         ArrayList<String> list = new ArrayList<>();
@@ -93,6 +108,7 @@ public class Comandos {
             switch (cmd) {
                 case "help":
                 case "?"://EXTRA POR SI NOS DA TIEMPO
+                    showHelp();
 
                     break;
                 case "dir"://DIRECTORIO ACTUAL
