@@ -278,22 +278,38 @@ public class Comandos {
     }
 
     private void Wr(String[] args) throws IOException {
-        if (args.length < 2) {
-            println("Uso: wr <archivo>");
-            return;
-        }
-
-        File file = new File(currentDir, args[1]);
-        if (!file.exists() || !file.isFile()) {
-            println("El archivo no existe.");
-            return;
-        }
-
-        println("Modo escritura activado para: " + file.getName());
-        println("Escriba el contenido. Escriba ':wq' en una linea nueva para guardar y salir.");
-        modoEscritura = true;
-        currentDir = file;
+    if (args.length < 2) {
+        println("Uso: wr <archivo>");
+        return;
     }
+
+    File file = new File(currentDir, args[1]);
+    if (!file.exists() || !file.isFile()) {
+        println("El archivo no existe.");
+        return;
+    }
+    JTextArea area = new JTextArea(15, 50);
+    area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 14));
+    JScrollPane sp = new JScrollPane(area);
+    String textoExistente = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+    area.setText(textoExistente);
+
+    int result = JOptionPane.showConfirmDialog(
+            null,
+            sp,
+            "Escribir en " + file.getName(),
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+    );
+
+    if (result == JOptionPane.OK_OPTION) {
+        Files.write(file.toPath(), area.getText().getBytes(StandardCharsets.UTF_8));
+        println("Archivo guardado: " + file.getName());
+    } else {
+        println("Edicion cancelada");
+    }
+}
+
 
     private void Rd(String[] args) throws IOException {
         if (args.length < 2) {
