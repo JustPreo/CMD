@@ -18,7 +18,7 @@ public class Comandos {
 
     private final JTextArea console;
     private final File rootDir;
-    private File currentDir;
+    private File currentDir = null;
 
     public Comandos(JTextArea console, File rootDir) {
         this.console = console;
@@ -33,7 +33,7 @@ public class Comandos {
     private void printPrompt() {
         console.append(currentDir.getAbsolutePath() + "> ");
     }
-    
+
     private String[] dividirArgs(String linea) {
         ArrayList<String> list = new ArrayList<>();
         boolean comillas = false;
@@ -61,8 +61,8 @@ public class Comandos {
         }
         return list.toArray(new String[0]);
     }
-    
-     public void hacerComando(String linea) {
+
+    public void hacerComando(String linea) {
         println(linea);
 
         if (linea.isEmpty()) {
@@ -77,37 +77,37 @@ public class Comandos {
             switch (cmd) {
                 case "help":
                 case "?"://EXTRA POR SI NOS DA TIEMPO
-                    
+
                     break;
                 case "dir"://DIRECTORIO ACTUAL
-                    
+
                     break;
                 case "date"://FECHA ACTUAL
-                    
+
                     break;
                 case "time"://MIRAR TIEMPO ACTUAL
-                    
+
                     break;
                 case "mkdir"://CREAR CARPETA
-                    
+
                     break;
                 case "mfile"://CREAR ARCHIVO
-                    
+
                     break;
                 case "rm"://BORARR (rm -rf en el CD)
-                    
+
                     break;
                 case "cd"://ELEGIR LA RUTA
-                    
+
                     break;
                 case "<...>"://VOLVER UNA CARPETA ATRAS
-                    
+
                     break;
                 case "wr"://ESCRIBIR
-                    
+
                     break;
                 case "rd"://LEER
-                    
+
                     break;
                 case "exit":
                     System.exit(0);
@@ -122,6 +122,63 @@ public class Comandos {
         printPrompt();
     }
     
+    private void cmdDir()//Directorio
+    {
+    File[] lista = currentDir.listFiles();
+    if (lista == null)
+    {
+    println("Directorio vacio");
+    return;
+    }
     
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    println(" Directorio de "+currentDir.getAbsolutePath());
+    println(" ");
+    for (File f:lista)
+    {
+    String fecha = df.format(new Date(f.lastModified()));
+    String tipo = (f.isDirectory() ? "<DIR>":"    ");
+    println(String.format(Locale.ROOT,"%s %5s %s",fecha,tipo,f.getName() ));
+    }
+    println("");
+    }
+    
+    private void date()
+    {
+    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+    println(f.format(new Date()));
+    }
+    
+    private void time()
+    {
+    SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+    println(f.format(new Date()));
+    }
+    
+    private void mkdir(String[] args) throws IOException
+    {
+    if (args.length>2)
+    {
+    println("Debe usar: mkdir <nombre>");
+    return;
+    }
+    File archivo = new File(currentDir, args[1]);
+    
+    if (archivo.exists())
+    {
+    println("Ya existe la carpeta");
+    return;
+    }
+    
+    if (archivo.mkdirs())
+    {
+    println("Carpeta creada: "+ archivo.getName()); 
+    }
+    else
+    {
+    println("No se pudo crear la carpeta");
+    }
+    
+    }
 
 }
