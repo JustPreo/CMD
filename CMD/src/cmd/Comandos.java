@@ -5,7 +5,6 @@
 package cmd;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
