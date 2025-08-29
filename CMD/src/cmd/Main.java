@@ -1,43 +1,83 @@
 package cmd;
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import javax.swing.*;
 
-public class Main extends JFrame{
-    
-    private final JTextArea console = new JTextArea();
-    private final JScrollPane scroll = new JScrollPane(console);
+public class Main extends JFrame {
+
+    private final JTextArea consola = new JTextArea();
+    private final JScrollPane scroll = new JScrollPane(consola);
 
     private File rootDir;
-    private File currentDir;
+    private File actualDir;
 
     public Main() {
+
         setTitle("Administrador: Command Prompt");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(920, 560);
         setLocationRelativeTo(null);
+
+        consola.setEditable(true);
+        consola.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+        consola.setBackground(Color.BLACK);
+        consola.setForeground(new Color(200, 200, 200));
+        consola.setLineWrap(true);
         
-        console.setEditable(true);
-        console.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        console.setBackground(Color.BLACK);
-        console.setForeground(new Color(200, 200, 200));
-        console.setLineWrap(true);
         apuntarDir();
+        Impresiones impresiones = new Impresiones(consola, rootDir);
+        impresiones.setActualDir(actualDir); 
+
+        consola.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    e.consume();
+                    String line = impresiones.leerActual();
+                    if (line != null) {
+                        // aqui se ejecuta el comando, apurate aaron >:c
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    int ingreso = consola.getCaretPosition();
+                    int lineaInicio = impresiones.ultimaLinea();
+                    if (ingreso <= lineaInicio + impresiones.promptTexto().length()) {
+                        e.consume();
+                    }
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                int ingreso = consola.getCaretPosition();
+                int lineaInicio = impresiones.ultimaLinea();
+                if (ingreso < lineaInicio + impresiones.promptTexto().length()) {
+                    consola.setCaretPosition(consola.getText().length());
+                }
+            }
+
+        });
 
         setLayout(new BorderLayout());
         add(scroll, BorderLayout.CENTER);
+
+        impresiones.imprimirBanner();
+        impresiones.imprimirPrompt();
+
     }
-    
+
     private void apuntarDir() {
-        String projectDir = System.getProperty("user.dir");
-        File sandbox = new File(projectDir);
-        this.rootDir = sandbox;
-        this.currentDir = sandbox;
+        String proyectoDir = System.getProperty("user.dir");
+        File predeterminada = new File(proyectoDir);
+        this.rootDir = predeterminada;
+        this.actualDir = predeterminada;
     }
-    
+
     public static void main(String[] args) {
         new Main().setVisible(true);
     }
-    
+
 }
