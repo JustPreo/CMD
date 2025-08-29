@@ -19,6 +19,7 @@ public class Comandos {
     private final JTextArea console;
     private final File rootDir;
     private File currentDir = null;
+    boolean modoEscritura = false;
 
     public Comandos(JTextArea console, File rootDir) {
         this.console = console;
@@ -64,7 +65,23 @@ public class Comandos {
 
     public void hacerComando(String linea) {
         println(linea);
-
+        if (modoEscritura) {
+            if (linea.equals(":wq")) {
+                try {
+                    Files.write(currentDir.toPath(),
+                            console.getText().getBytes(StandardCharsets.UTF_8));
+                    println("Archivo guardado: " + currentDir.getName());
+                } catch (IOException e) {
+                    println("Error al guardar: " + e.getMessage());
+                }
+                modoEscritura = false;
+                printPrompt();
+                return;
+            } else {
+                console.append(linea + "\n");
+                return;
+            }
+        }
         if (linea.isEmpty()) {
             printPrompt();
             return;
@@ -121,130 +138,173 @@ public class Comandos {
 
         printPrompt();
     }
-    
+
     private void cmdDir()//Directorio
     {
-    File[] lista = currentDir.listFiles();
-    if (lista == null)
-    {
-    println("Directorio vacio");
-    return;
-    }
-    
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    println(" Directorio de "+currentDir.getAbsolutePath());
-    println(" ");
-    for (File f:lista)
-    {
-    String fecha = df.format(new Date(f.lastModified()));
-    String tipo = (f.isDirectory() ? "<DIR>":"    ");
-    println(String.format(Locale.ROOT,"%s %5s %s",fecha,tipo,f.getName() ));
-    }
-    println("");
-    }
-    
-    private void date()
-    {
-    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-    println(f.format(new Date()));
-    }
-    
-    private void time()
-    {
-    SimpleDateFormat f = new SimpleDateFormat("HH:mm");
-    println(f.format(new Date()));
-    }
-    
-    private void mkdir(String[] args) throws IOException
-    {
-    if (args.length>2)
-    {
-    println("Debe usar: mkdir <nombre>");
-    return;
-    }
-    File archivo = new File(currentDir, args[1]);
-    
-    if (archivo.exists())
-    {
-    println("Ya existe la carpeta");
-    return;
-    }
-    
-    if (archivo.mkdirs())//Revisa si se crea o no
-    {
-    println("Carpeta creada: "+ archivo.getName()); 
-    }
-    else
-    {
-    println("No se pudo crear la carpeta");
-    }
-    
-    }
-    
-    private void fileCrear(String[] args) throws IOException{
-        if (args.length > 2){
-        println("Debe usar: mfile <nombre.txt>");
-        return;
+        File[] lista = currentDir.listFiles();
+        if (lista == null) {
+            println("Directorio vacio");
+            return;
         }
-        
-        File archivo = new File(currentDir,args[1]);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        println(" Directorio de " + currentDir.getAbsolutePath());
+        println(" ");
+        for (File f : lista) {
+            String fecha = df.format(new Date(f.lastModified()));
+            String tipo = (f.isDirectory() ? "<DIR>" : "    ");
+            println(String.format(Locale.ROOT, "%s %5s %s", fecha, tipo, f.getName()));
+        }
+        println("");
+    }
+
+    private void date() {
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+        println(f.format(new Date()));
+    }
+
+    private void time() {
+        SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+        println(f.format(new Date()));
+    }
+
+    private void mkdir(String[] args) throws IOException {
+        if (args.length > 2) {
+            println("Debe usar: mkdir <nombre>");
+            return;
+        }
+        File archivo = new File(currentDir, args[1]);
+
+        if (archivo.exists()) {
+            println("Ya existe la carpeta");
+            return;
+        }
+
+        if (archivo.mkdirs())//Revisa si se crea o no
+        {
+            println("Carpeta creada: " + archivo.getName());
+        } else {
+            println("No se pudo crear la carpeta");
+        }
+
+    }
+
+    private void fileCrear(String[] args) throws IOException {
+        if (args.length > 2) {
+            println("Debe usar: mfile <nombre.txt>");
+            return;
+        }
+
+        File archivo = new File(currentDir, args[1]);
         if (archivo.exists())//Revisar si existe
         {
-        println("archivo ya existe");
+            println("archivo ya existe");
+            return;
+        }
+
+        if (archivo.createNewFile()) {
+            println("Archivo creado: " + archivo.getName());
+        } else {
+            println("No se pudo crear el archivo");
+        }
+    }
+
+    private boolean RmR(File f) {
+        if (f.isDirectory()) {
+            File[] children = f.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    if (!RmR(child)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return f.delete();
+    }
+
+    private void Rm(String[] args) throws IOException {
+        if (args.length < 2) {
+            println("Debe usar: rm <nombre>");
+            return;
+        }
+
+        File archivo = new File(currentDir, args[1]);
+        if (!archivo.exists()) {
+            println("No existe: " + archivo.getName());
+        }
+        if (RmR(archivo)) {
+            println("Se elimino:" + archivo.getName());
+        } else {
+            println("No se pudo eliminar");
+        }
+
+    }
+
+    private void volver() throws IOException {
+
+        if (currentDir.equals(rootDir)) {
+            println("Ya esta en la raiz");
+            return;
+        }
+        currentDir = currentDir.getCanonicalFile().getParentFile();
+    }
+
+    private void cD(String[] args) throws IOException {
+        if (args.length < 2) {
+            println("Debe usar: cd <carpeta>");
+            return;
+        }
+        if ("..".equals(args[1])) {
+            volver();//Por si escribe ..
+            return;
+        }
+        File dir = new File(currentDir, args[1]);
+        if (!dir.exists() || !dir.isDirectory()) {
+            println("Ruta invalida");
+            return;
+        }
+        currentDir = dir;
+
+    }
+
+    private void Wr(String[] args) throws IOException {
+       if (args.length < 2) {
+        println("Uso: wr <archivo>");
         return;
-        }
-        
-        if (archivo.createNewFile())
-        {
-        println("Archivo creado: "+archivo.getName());
-        }
-        else
-        {
-        println("No se pudo crear el archivo");
-        }
     }
-    private boolean RmR(File f)
-    {
-    if (f.isDirectory())
-    {
-    File[] children = f.listFiles();
-    if (children != null)
-    {
-    for(File child:children)
-    {
-    if (!RmR(child))
-    {
-    return false;
+
+    File file = new File(currentDir, args[1]);
+    if (!file.exists() || !file.isFile()) {
+        println("El archivo no existe.");
+        return;
     }
-    }
-    }
-    }
-    return f.delete();
+
+    println("Modo escritura activado para: " + file.getName());
+    println("Escriba el contenido. Escriba ':wq' en una linea nueva para guardar y salir.");
+    modoEscritura = true;
+    currentDir = file;
+    //Como en git 
+}
+    private void Rd(String[] args) throws IOException
+    {
+    if (args.length < 2) {
+        println("Uso: Rd <archivo>");
+        return;
     }
     
-    private void Rm(String[] args) throws IOException
+    File file = new File(currentDir,args[1]);
+    
+    if (!file.exists() || !file.isFile())
     {
-    if (args.length < 2)
-    {
-    println("Debe usar: rm <nombre>");
+    println("Archivo no existe");
     return;
     }
-    
-    File archivo = new File(currentDir,args[1]);
-    if (!archivo.exists())
-    {
-    println("No existe: "+archivo.getName());
-    }
-    if (RmR(archivo))
-    {
-    println("Se elimino:"+archivo.getName());
-    }
-    else
-    {
-    println("No se pudo eliminar");
-    }
-    
-    
+    String texto = new String(Files.readAllBytes(file.toPath()),StandardCharsets.UTF_8);
+        println("");
+        println("=== "+file.getName()+ " ===");
+        println((texto.isEmpty() ? "(Vacio)":texto));
+        println("=== fin ===");
     }
 
 }
