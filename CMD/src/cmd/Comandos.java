@@ -96,34 +96,43 @@ public class Comandos {
 
                     break;
                 case "dir"://DIRECTORIO ACTUAL
+                    cmdDir();
 
                     break;
                 case "date"://FECHA ACTUAL
+                    date();
 
                     break;
                 case "time"://MIRAR TIEMPO ACTUAL
+                    time();
 
                     break;
                 case "mkdir"://CREAR CARPETA
+                    mkdir(args);
 
                     break;
                 case "mfile"://CREAR ARCHIVO
+                    fileCrear(args);
 
                     break;
                 case "rm"://BORARR (rm -rf en el CD)
+                    Rm(args);
 
                     break;
                 case "cd"://ELEGIR LA RUTA
+                    cD(args);
 
                     break;
                 case "<...>"://VOLVER UNA CARPETA ATRAS
+                    volver();
 
                     break;
                 case "wr"://ESCRIBIR
+                    Wr(args);
 
                     break;
                 case "rd"://LEER
-
+                    Rd(args);
                     break;
                 case "exit":
                     System.exit(0);
@@ -268,41 +277,40 @@ public class Comandos {
     }
 
     private void Wr(String[] args) throws IOException {
-       if (args.length < 2) {
-        println("Uso: wr <archivo>");
-        return;
+        if (args.length < 2) {
+            println("Uso: wr <archivo>");
+            return;
+        }
+
+        File file = new File(currentDir, args[1]);
+        if (!file.exists() || !file.isFile()) {
+            println("El archivo no existe.");
+            return;
+        }
+
+        println("Modo escritura activado para: " + file.getName());
+        println("Escriba el contenido. Escriba ':wq' en una linea nueva para guardar y salir.");
+        modoEscritura = true;
+        currentDir = file;
+        //Como en git 
     }
 
-    File file = new File(currentDir, args[1]);
-    if (!file.exists() || !file.isFile()) {
-        println("El archivo no existe.");
-        return;
-    }
+    private void Rd(String[] args) throws IOException {
+        if (args.length < 2) {
+            println("Uso: Rd <archivo>");
+            return;
+        }
 
-    println("Modo escritura activado para: " + file.getName());
-    println("Escriba el contenido. Escriba ':wq' en una linea nueva para guardar y salir.");
-    modoEscritura = true;
-    currentDir = file;
-    //Como en git 
-}
-    private void Rd(String[] args) throws IOException
-    {
-    if (args.length < 2) {
-        println("Uso: Rd <archivo>");
-        return;
-    }
-    
-    File file = new File(currentDir,args[1]);
-    
-    if (!file.exists() || !file.isFile())
-    {
-    println("Archivo no existe");
-    return;
-    }
-    String texto = new String(Files.readAllBytes(file.toPath()),StandardCharsets.UTF_8);
+        File file = new File(currentDir, args[1]);
+
+        if (!file.exists() || !file.isFile()) {
+            println("Archivo no existe");
+            return;
+        }
+        String texto = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         println("");
-        println("=== "+file.getName()+ " ===");
-        println((texto.isEmpty() ? "(Vacio)":texto));
+        println("=== " + file.getName() + " ===");
+        println((texto.isEmpty() ? "(Vacio)" : texto));
         println("=== fin ===");
     }
 
