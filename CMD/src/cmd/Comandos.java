@@ -170,7 +170,7 @@ public class Comandos {
     return;
     }
     
-    if (archivo.mkdirs())
+    if (archivo.mkdirs())//Revisa si se crea o no
     {
     println("Carpeta creada: "+ archivo.getName()); 
     }
@@ -178,6 +178,72 @@ public class Comandos {
     {
     println("No se pudo crear la carpeta");
     }
+    
+    }
+    
+    private void fileCrear(String[] args) throws IOException{
+        if (args.length > 2){
+        println("Debe usar: mfile <nombre.txt>");
+        return;
+        }
+        
+        File archivo = new File(currentDir,args[1]);
+        if (archivo.exists())//Revisar si existe
+        {
+        println("archivo ya existe");
+        return;
+        }
+        
+        if (archivo.createNewFile())
+        {
+        println("Archivo creado: "+archivo.getName());
+        }
+        else
+        {
+        println("No se pudo crear el archivo");
+        }
+    }
+    private boolean RmR(File f)
+    {
+    if (f.isDirectory())
+    {
+    File[] children = f.listFiles();
+    if (children != null)
+    {
+    for(File child:children)
+    {
+    if (!RmR(child))
+    {
+    return false;
+    }
+    }
+    }
+    }
+    return f.delete();
+    }
+    
+    private void Rm(String[] args) throws IOException
+    {
+    if (args.length < 2)
+    {
+    println("Debe usar: rm <nombre>");
+    return;
+    }
+    
+    File archivo = new File(currentDir,args[1]);
+    if (!archivo.exists())
+    {
+    println("No existe: "+archivo.getName());
+    }
+    if (RmR(archivo))
+    {
+    println("Se elimino:"+archivo.getName());
+    }
+    else
+    {
+    println("No se pudo eliminar");
+    }
+    
     
     }
 
